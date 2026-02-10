@@ -1,0 +1,23 @@
+[0.638s] Invoking command in '/home/isthis/takeout/lane_car/src/lane_follow_pkg': PYTHONPATH=/home/isthis/takeout/lane_car/build/lane_follow_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/lane_follow_pkg build --build-base /home/isthis/takeout/lane_car/build/lane_follow_pkg/build install --record /home/isthis/takeout/lane_car/build/lane_follow_pkg/install.log --single-version-externally-managed
+[0.775s] running egg_info
+[0.776s] writing ../../build/lane_follow_pkg/lane_follow_pkg.egg-info/PKG-INFO
+[0.776s] writing dependency_links to ../../build/lane_follow_pkg/lane_follow_pkg.egg-info/dependency_links.txt
+[0.776s] writing entry points to ../../build/lane_follow_pkg/lane_follow_pkg.egg-info/entry_points.txt
+[0.776s] writing requirements to ../../build/lane_follow_pkg/lane_follow_pkg.egg-info/requires.txt
+[0.776s] writing top-level names to ../../build/lane_follow_pkg/lane_follow_pkg.egg-info/top_level.txt
+[0.777s] reading manifest file '../../build/lane_follow_pkg/lane_follow_pkg.egg-info/SOURCES.txt'
+[0.777s] writing manifest file '../../build/lane_follow_pkg/lane_follow_pkg.egg-info/SOURCES.txt'
+[0.777s] running build
+[0.777s] running build_py
+[0.777s] copying lane_follow_pkg/lane_follow_node.py -> /home/isthis/takeout/lane_car/build/lane_follow_pkg/build/lib/lane_follow_pkg
+[0.777s] running install
+[0.778s] running install_lib
+[0.778s] copying /home/isthis/takeout/lane_car/build/lane_follow_pkg/build/lib/lane_follow_pkg/lane_follow_node.py -> /home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/python3.10/site-packages/lane_follow_pkg
+[0.778s] byte-compiling /home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/python3.10/site-packages/lane_follow_pkg/lane_follow_node.py to lane_follow_node.cpython-310.pyc
+[0.779s] running install_egg_info
+[0.780s] removing '/home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/python3.10/site-packages/lane_follow_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[0.780s] Copying ../../build/lane_follow_pkg/lane_follow_pkg.egg-info to /home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/python3.10/site-packages/lane_follow_pkg-0.0.0-py3.10.egg-info
+[0.781s] running install_scripts
+[0.792s] Installing lane_follow_node script to /home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/lane_follow_pkg
+[0.793s] writing list of installed files to '/home/isthis/takeout/lane_car/build/lane_follow_pkg/install.log'
+[0.809s] Invoked command in '/home/isthis/takeout/lane_car/src/lane_follow_pkg' returned '0': PYTHONPATH=/home/isthis/takeout/lane_car/build/lane_follow_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/isthis/takeout/lane_car/install/lane_follow_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/lane_follow_pkg build --build-base /home/isthis/takeout/lane_car/build/lane_follow_pkg/build install --record /home/isthis/takeout/lane_car/build/lane_follow_pkg/install.log --single-version-externally-managed

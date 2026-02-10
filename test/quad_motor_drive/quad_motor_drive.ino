@@ -37,10 +37,6 @@ void loop() {
   // 4) 1초 제자리 오른쪽 회전
   turnRight(150);
   delay(1000);
-
-  // 5) 정지 후 대기
-  stopMotors();
-  while(1);
 }
 
 void forward(int speed) {

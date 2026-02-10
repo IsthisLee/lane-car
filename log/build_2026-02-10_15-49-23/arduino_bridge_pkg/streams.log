@@ -1,0 +1,20 @@
+[0.641s] Invoking command in '/home/isthis/takeout/lane_car/src/arduino_bridge_pkg': PYTHONPATH=/home/isthis/takeout/lane_car/build/arduino_bridge_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/isthis/takeout/lane_car/install/arduino_bridge_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/arduino_bridge_pkg build --build-base /home/isthis/takeout/lane_car/build/arduino_bridge_pkg/build install --record /home/isthis/takeout/lane_car/build/arduino_bridge_pkg/install.log --single-version-externally-managed
+[0.772s] running egg_info
+[0.772s] writing ../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/PKG-INFO
+[0.772s] writing dependency_links to ../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/dependency_links.txt
+[0.772s] writing entry points to ../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/entry_points.txt
+[0.773s] writing requirements to ../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/requires.txt
+[0.773s] writing top-level names to ../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/top_level.txt
+[0.773s] reading manifest file '../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/SOURCES.txt'
+[0.774s] writing manifest file '../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info/SOURCES.txt'
+[0.774s] running build
+[0.774s] running build_py
+[0.774s] running install
+[0.774s] running install_lib
+[0.775s] running install_egg_info
+[0.776s] removing '/home/isthis/takeout/lane_car/install/arduino_bridge_pkg/lib/python3.10/site-packages/arduino_bridge_pkg-0.0.0-py3.10.egg-info' (and everything under it)
+[0.776s] Copying ../../build/arduino_bridge_pkg/arduino_bridge_pkg.egg-info to /home/isthis/takeout/lane_car/install/arduino_bridge_pkg/lib/python3.10/site-packages/arduino_bridge_pkg-0.0.0-py3.10.egg-info
+[0.776s] running install_scripts
+[0.789s] Installing arduino_bridge_node script to /home/isthis/takeout/lane_car/install/arduino_bridge_pkg/lib/arduino_bridge_pkg
+[0.789s] writing list of installed files to '/home/isthis/takeout/lane_car/build/arduino_bridge_pkg/install.log'
+[0.807s] Invoked command in '/home/isthis/takeout/lane_car/src/arduino_bridge_pkg' returned '0': PYTHONPATH=/home/isthis/takeout/lane_car/build/arduino_bridge_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/isthis/takeout/lane_car/install/arduino_bridge_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/arduino_bridge_pkg build --build-base /home/isthis/takeout/lane_car/build/arduino_bridge_pkg/build install --record /home/isthis/takeout/lane_car/build/arduino_bridge_pkg/install.log --single-version-externally-managed

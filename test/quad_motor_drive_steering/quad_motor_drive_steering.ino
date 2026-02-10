@@ -1,4 +1,4 @@
-// ROS2로부터 "steeringAngle" 문자열을 받아서 4모터를 제어하는 코드
+// Arduino 쪽: quad_motor_drive/quad_motor_drive.ino
 
 int IN1 = 5;
 int IN2 = 6;
@@ -8,10 +8,10 @@ int IN3 = 3;
 int IN4 = 4;
 int ENB = 10;
 
-const int LEFT_THRESHOLD  = 70;   // 이 값보다 작으면 좌회전
-const int RIGHT_THRESHOLD = 110;  // 이 값보다 크면 우회전
-
-int steeringAngle = 90;           // 초기값: 직진
+const int MOTOR_SPEED = 255;
+const int LEFT_THRESHOLD  = 80;   // 이 값보다 작으면 왼쪽
+const int RIGHT_THRESHOLD = 100;  // 이 값보다 크면 오른쪽
+int steeringAngle = 90;           // 기본 직진
 
 void setup() {
   Serial.begin(115200);
@@ -28,7 +28,7 @@ void setup() {
 }
 
 void loop() {
-  // 1) 시리얼에서 "각도" 한 줄 읽음
+  // Serial로 "각도\n" 수신
   if (Serial.available()) {
     String line = Serial.readStringUntil('\n');
     line.trim();
@@ -40,58 +40,56 @@ void loop() {
     }
   }
 
-  // 2) 각도 조건에 따라 동작 결정
   if (steeringAngle < LEFT_THRESHOLD) {
-    turnLeft(150);
+    turnLeft(255);
   } else if (steeringAngle > RIGHT_THRESHOLD) {
-    turnRight(150);
+    turnRight(255);
   } else {
-    goForward(150);
+    goForward(MOTOR_SPEED);
   }
 
-  delay(20); // 너무 자주 바뀌지 않도록
-
+  delay(20);
+  
   stopMotors();
   while(1);
 }
 
 void goForward(int speed) {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 
-  analogWrite(ENA, speed);
   analogWrite(ENB, speed);
+  analogWrite(ENA, speed*0.4);
 }
 
 void turnLeft(int speed) {
-  // 차등 회전: 안쪽 바퀴를 느리게, 바깥쪽을 빠르게
-  int inner = speed / 3;
-  int outer = speed;
+  int innerSpeed = speed / 5;
+  int outerSpeed = speed;
 
-  // 왼쪽이 안쪽, 오른쪽이 바깥쪽이라고 가정
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  // 왼쪽(안쪽) 느리게, 오른쪽(바깥쪽) 빠르게
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 
-  analogWrite(ENA, inner);
-  analogWrite(ENB, outer);
+  analogWrite(ENB, innerSpeed);
+  analogWrite(ENA, outerSpeed);
 }
 
 void turnRight(int speed) {
-  int inner = speed / 3;
-  int outer = speed;
+  int innerSpeed = speed / 10;
+  int outerSpeed = speed;
 
-  // 오른쪽이 안쪽, 왼쪽이 바깥쪽
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+  // 오른쪽(안쪽) 느리게, 왼쪽(바깥쪽) 빠르게
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
 
-  analogWrite(ENA, outer);
-  analogWrite(ENB, inner);
+  analogWrite(ENB, outerSpeed);
+  analogWrite(ENA, innerSpeed);
 }
 
 void stopMotors() {

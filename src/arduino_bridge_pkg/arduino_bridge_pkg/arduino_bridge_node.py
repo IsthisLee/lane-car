@@ -1,3 +1,5 @@
+# arduino_bridge_pkg/arduino_bridge_pkg/arduino_bridge_node.py
+
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
@@ -8,20 +10,18 @@ from std_msgs.msg import Int32
 
 class ArduinoBridgeNode(Node):
     def __init__(self):
-        # 노드 이름: arduino_bridge_node
         super().__init__('arduino_bridge_node')
 
-        port = '/dev/ttyACM0'   # 환경에 따라 /dev/ttyUSB0 일 수도 있음
+        port = '/dev/ttyACM0'   # 환경에 맞게 수정
         baud = 115200
 
         try:
             self.ser = serial.Serial(port, baudrate=baud, timeout=1)
             self.get_logger().info(f"Serial port opened: {port}")
         except Exception as e:
-            self.get_logger().error(f"Failed to open serial: {e}")
+            self.get_logger().error(f"Failed to open serial port: {e}")
             self.ser = None
 
-        # lane_follow_node의 조향각 토픽 구독
         self.sub = self.create_subscription(
             Int32,
             'lane_follow/steering_angle',
@@ -35,7 +35,6 @@ class ArduinoBridgeNode(Node):
 
         angle = msg.data
         data = f"{angle}\n"
-
         try:
             self.ser.write(data.encode('utf-8'))
         except Exception as e:
