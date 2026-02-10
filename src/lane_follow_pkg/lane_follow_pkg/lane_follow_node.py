@@ -1,200 +1,171 @@
-# lane_follow_pkg/lane_follow_pkg/lane_follow_node.py
-
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-
+from sensor_msgs.msg import Image
+from std_msgs.msg import Int32
+from cv_bridge import CvBridge
 import cv2
 import numpy as np
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
-from std_msgs.msg import Int32
+import collections
+
+
+def average_slope_intercept(image, lines):
+    left_fit, right_fit = [], []
+    if lines is None:
+        return None, None
+
+    width = image.shape[1]
+    center_x = width / 2
+
+    for line in lines:
+        x1, y1, x2, y2 = line.reshape(4)
+        parameters = np.polyfit((x1, x2), (y1, y2), 1)
+        slope, intercept = parameters
+
+        if slope < -0.5 and x1 < center_x and x2 < center_x:
+            left_fit.append((slope, intercept))
+        elif slope > 0.5 and x1 > center_x and x2 > center_x:
+            right_fit.append((slope, intercept))
+
+    left_fit_avg = np.average(left_fit, axis=0) if left_fit else None
+    right_fit_avg = np.average(right_fit, axis=0) if right_fit else None
+    return left_fit_avg, right_fit_avg
+
+
+def make_coordinates(image, line_parameters):
+    if line_parameters is None:
+        return None
+    slope, intercept = line_parameters
+    height = image.shape[0]
+    y1 = height
+    y2 = int(height * 0.7)
+    x1 = int((y1 - intercept) / slope)
+    x2 = int((y2 - intercept) / slope)
+    return np.array([x1, y1, x2, y2])
 
 
 class LaneFollowNode(Node):
     def __init__(self):
         super().__init__('lane_follow_node')
-
         self.bridge = CvBridge()
-
         self.sub_img = self.create_subscription(
-            Image,
-            'camera/image_raw',
-            self.image_callback,
-            10
-        )
-
+            Image, 'camera/image_raw', self.image_callback, 10)
         self.pub_steer = self.create_publisher(
-            Int32,
-            'lane_follow/steering_angle',
-            10
-        )
+            Int32, 'lane_follow/steering_angle', 10)
 
-        # PD 계수 (필요시 튜닝)
-        self.kp = 0.15
-        self.kd = 0.4
-        self.prev_error = 0.0
+        self.recent_angles = collections.deque(maxlen=5)
+        self.last_angle = 90
 
-        self.y_ref = 400  # 차선 중심 계산할 y 위치
-
-        self.last_left_fit = None   # (slope, intercept)
+        self.last_left_fit = None
         self.last_right_fit = None
 
+        self.kp = -0.5
+        self.kd = -0.15
+        self.prev_error = 0
+        self.LANE_WIDTH_PIXELS = 350
+        self.y_ref = 0
+
     def image_callback(self, msg: Image):
-        frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8') # BGR, 컬러
-        height, width, _ = frame.shape
+        cv_image = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+        gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+        blurred = cv2.GaussianBlur(binary, (5, 5), 0)
+        edges = cv2.Canny(blurred, 80, 200)
 
-        # 1) Gray → Threshold → Canny
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        _, binary = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY) # 이진화
-        edges = cv2.Canny(binary, 80, 200)
-
-        # 2) 사다리꼴 ROI
-        polygon = np.array([[
-            (int(width * 0.05), height),
-            (int(width * 0.95), height),
-            (int(width * 0.78), int(height * 0.38)),
-            (int(width * 0.22), int(height * 0.38))
-        ]], np.int32)
+        height, width = edges.shape
+        self.y_ref = int(height * 0.6)
 
         mask = np.zeros_like(edges)
+
+        polygon = np.array([[
+            (0, height),
+            (width, height),
+            (int(width * 0.7), int(height / 3)),
+            (int(width * 0.3), int(height / 3))
+        ]], np.int32)
+
         cv2.fillPoly(mask, polygon, 255)
         roi_edges = cv2.bitwise_and(edges, mask)
 
-        # 3) 허프 변환 (직선 검출)
-        lines = cv2.HoughLinesP(
-            roi_edges,
-            1,
-            np.pi / 180,
-            threshold=50,
-            minLineLength=50,
-            maxLineGap=30
-        )
+        lines = cv2.HoughLinesP(roi_edges, 1, np.pi / 180, 50,
+                                minLineLength=50, maxLineGap=10)
 
-        left_fit, right_fit = self.get_lane_lines(lines)
+        left_avg, right_avg = average_slope_intercept(cv_image, lines)
 
-        # 마지막 유효 차선 저장
-        if left_fit is not None:
-            self.last_left_fit = left_fit
-        if right_fit is not None:
-            self.last_right_fit = right_fit
+        if left_avg is not None:
+            self.last_left_fit = left_avg
+        if right_avg is not None:
+            self.last_right_fit = right_avg
 
-        if left_fit is None:
-            left_fit = self.last_left_fit
-        if right_fit is None:
-            right_fit = self.last_right_fit
-
+        line_image = np.zeros_like(cv_image)
         steering_angle = 90
-        error = 0.0
+        image_center = width / 2
+        error = 0
 
-        if left_fit is not None and right_fit is not None:
-            mL, bL = left_fit
-            mR, bR = right_fit
+        lane_center = None
 
-            # slope/offset 유효성 검사
-            if (abs(mL) >= 1e-3 and abs(mR) >= 1e-3 and
-                    np.isfinite(mL) and np.isfinite(bL) and
-                    np.isfinite(mR) and np.isfinite(bR)):
+        if self.last_left_fit is not None and self.last_right_fit is not None:
+            x_left = (self.y_ref - self.last_left_fit[1]) / self.last_left_fit[0]
+            x_right = (self.y_ref - self.last_right_fit[1]) / self.last_right_fit[0]
+            lane_center = (x_left + x_right) / 2
+            error = lane_center - image_center
+        elif self.last_left_fit is not None:
+            x_left = (self.y_ref - self.last_left_fit[1]) / self.last_left_fit[0]
+            lane_center = x_left + self.LANE_WIDTH_PIXELS / 2
+            error = lane_center - image_center
+        elif self.last_right_fit is not None:
+            x_right = (self.y_ref - self.last_right_fit[1]) / self.last_right_fit[0]
+            lane_center = x_right - self.LANE_WIDTH_PIXELS / 2
+            error = lane_center - image_center
 
-                x_left = (self.y_ref - bL) / mL
-                x_right = (self.y_ref - bR) / mR
-
-                if np.isfinite(x_left) and np.isfinite(x_right):
-                    lane_center = (x_left + x_right) / 2.0
-                    image_center = width / 2.0
-
-                    error = lane_center - image_center
-                    derivative = error - self.prev_error
-                    steering_angle = 90 - int(self.kp * error + self.kd * derivative)
-                    self.prev_error = error
-            # 그 외 경우는 steering_angle = 90 유지
+        if lane_center is not None:
+            derivative = error - self.prev_error
+            steering_angle = 90 - int(self.kp * error + self.kd * derivative)
+            self.prev_error = error
+        else:
+            steering_angle = self.last_angle
 
         steering_angle = max(0, min(180, steering_angle))
+        self.recent_angles.append(steering_angle)
+        smoothed_angle = int(sum(self.recent_angles) / len(self.recent_angles))
+        self.last_angle = smoothed_angle
 
         msg_out = Int32()
-        msg_out.data = int(steering_angle)
+        msg_out.data = smoothed_angle
         self.pub_steer.publish(msg_out)
+        self.get_logger().info(f'Publishing Angle: {smoothed_angle}, Error: {error:.2f}')
 
-        # 디버그 시각화
-        debug = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-        cv2.polylines(debug, polygon, True, (0, 255, 0), 2)
+        left_coords = make_coordinates(cv_image, self.last_left_fit)
+        right_coords = make_coordinates(cv_image, self.last_right_fit)
 
-        if left_fit is not None:
-            self.draw_line(debug, left_fit, height, (0, 255, 255))
-        if right_fit is not None:
-            self.draw_line(debug, right_fit, height, (0, 255, 255))
+        if left_coords is not None:
+            cv2.line(line_image, (left_coords[0], left_coords[1]), (left_coords[2], left_coords[3]), (0, 0, 255), 10)
+        if right_coords is not None:
+            cv2.line(line_image, (right_coords[0], right_coords[1]), (right_coords[2], right_coords[3]), (255, 0, 0), 10)
 
-        image_center = int(width / 2)
-        cv2.line(debug, (image_center, 0), (image_center, height), (255, 0, 0), 2)
+        overlay = np.zeros_like(cv_image)
+        cv2.fillPoly(overlay, polygon, (0, 255, 255))
+        combo = cv2.addWeighted(cv_image, 0.8, overlay, 0.3, 1)
 
-        cv2.putText(debug, f"angle: {steering_angle}", (30, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
-        cv2.putText(debug, f"error: {error:.1f}", (30, 80),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+        combo = cv2.addWeighted(combo, 0.8, line_image, 1, 1)
+        cv2.line(combo, (0, self.y_ref), (width, self.y_ref), (0, 255, 255), 1)
+        cv2.circle(combo, (int(image_center), self.y_ref), 5, (0, 255, 0), -1)
 
-        cv2.imshow("lane_follow_debug", debug)
-        cv2.imshow("binary", binary)
-        cv2.imshow("edges", edges)
-        cv2.imshow("roi_edges", roi_edges)
+        if lane_center is not None:
+            cv2.circle(combo, (int(lane_center), self.y_ref), 5, (255, 0, 255), -1)
 
+        cv2.imshow('Lane Detection', combo)
         cv2.waitKey(1)
-
-    def get_lane_lines(self, lines):
-        if lines is None:
-            return None, None
-
-        left_lines = []
-        right_lines = []
-
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            dx = x2 - x1
-            dy = y2 - y1
-            if dx == 0:
-                continue  # 수직선은 스킵
-
-            slope = dy / dx
-            # 너무 수평에 가까운 선 제거
-            if abs(slope) < 0.1:
-                continue
-
-            intercept = y1 - slope * x1
-
-            if slope < 0:
-                left_lines.append((slope, intercept))
-            else:
-                right_lines.append((slope, intercept))
-
-        left_fit = np.mean(left_lines, axis=0) if left_lines else None
-        right_fit = np.mean(right_lines, axis=0) if right_lines else None
-
-        return left_fit, right_fit
-
-    def draw_line(self, image, line_fit, height, color):
-        slope, intercept = line_fit
-
-        if slope == 0 or not np.isfinite(slope) or not np.isfinite(intercept):
-            return
-
-        y1 = height
-        y2 = int(height * 0.5)
-
-        x1 = (y1 - intercept) / slope
-        x2 = (y2 - intercept) / slope
-
-        if not np.isfinite(x1) or not np.isfinite(x2):
-            return
-
-        x1 = int(round(x1))
-        x2 = int(round(x2))
-
-        cv2.line(image, (x1, y1), (x2, y2), color, 5)
 
 
 def main(args=None):
     rclpy.init(args=args)
     node = LaneFollowNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    cv2.destroyAllWindows()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        cv2.destroyAllWindows()
+        rclpy.shutdown()
