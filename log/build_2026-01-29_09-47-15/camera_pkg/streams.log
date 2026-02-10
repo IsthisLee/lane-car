@@ -1,0 +1,37 @@
+[0.386s] Invoking command in '/home/isthis/takeout/lane_car/src/camera_pkg': PYTHONPATH=/home/isthis/takeout/lane_car/build/camera_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/camera_pkg build --build-base /home/isthis/takeout/lane_car/build/camera_pkg/build install --record /home/isthis/takeout/lane_car/build/camera_pkg/install.log --single-version-externally-managed install_data
+[0.530s] running egg_info
+[0.531s] creating ../../build/camera_pkg/camera_pkg.egg-info
+[0.531s] writing ../../build/camera_pkg/camera_pkg.egg-info/PKG-INFO
+[0.531s] writing dependency_links to ../../build/camera_pkg/camera_pkg.egg-info/dependency_links.txt
+[0.531s] writing entry points to ../../build/camera_pkg/camera_pkg.egg-info/entry_points.txt
+[0.531s] writing requirements to ../../build/camera_pkg/camera_pkg.egg-info/requires.txt
+[0.531s] writing top-level names to ../../build/camera_pkg/camera_pkg.egg-info/top_level.txt
+[0.531s] writing manifest file '../../build/camera_pkg/camera_pkg.egg-info/SOURCES.txt'
+[0.533s] reading manifest file '../../build/camera_pkg/camera_pkg.egg-info/SOURCES.txt'
+[0.533s] writing manifest file '../../build/camera_pkg/camera_pkg.egg-info/SOURCES.txt'
+[0.533s] running build
+[0.533s] running build_py
+[0.533s] creating /home/isthis/takeout/lane_car/build/camera_pkg/build
+[0.533s] creating /home/isthis/takeout/lane_car/build/camera_pkg/build/lib
+[0.533s] creating /home/isthis/takeout/lane_car/build/camera_pkg/build/lib/camera_pkg
+[0.533s] copying camera_pkg/camera_node.py -> /home/isthis/takeout/lane_car/build/camera_pkg/build/lib/camera_pkg
+[0.533s] copying camera_pkg/__init__.py -> /home/isthis/takeout/lane_car/build/camera_pkg/build/lib/camera_pkg
+[0.533s] running install
+[0.534s] running install_lib
+[0.534s] creating /home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages/camera_pkg
+[0.534s] copying /home/isthis/takeout/lane_car/build/camera_pkg/build/lib/camera_pkg/camera_node.py -> /home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages/camera_pkg
+[0.534s] copying /home/isthis/takeout/lane_car/build/camera_pkg/build/lib/camera_pkg/__init__.py -> /home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages/camera_pkg
+[0.534s] byte-compiling /home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages/camera_pkg/camera_node.py to camera_node.cpython-310.pyc
+[0.534s] byte-compiling /home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages/camera_pkg/__init__.py to __init__.cpython-310.pyc
+[0.534s] running install_data
+[0.534s] creating /home/isthis/takeout/lane_car/install/camera_pkg/share/ament_index
+[0.535s] creating /home/isthis/takeout/lane_car/install/camera_pkg/share/ament_index/resource_index
+[0.535s] creating /home/isthis/takeout/lane_car/install/camera_pkg/share/ament_index/resource_index/packages
+[0.535s] copying resource/camera_pkg -> /home/isthis/takeout/lane_car/install/camera_pkg/share/ament_index/resource_index/packages
+[0.535s] copying package.xml -> /home/isthis/takeout/lane_car/install/camera_pkg/share/camera_pkg
+[0.535s] running install_egg_info
+[0.536s] Copying ../../build/camera_pkg/camera_pkg.egg-info to /home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages/camera_pkg-0.0.0-py3.10.egg-info
+[0.536s] running install_scripts
+[0.553s] Installing camera_node script to /home/isthis/takeout/lane_car/install/camera_pkg/lib/camera_pkg
+[0.553s] writing list of installed files to '/home/isthis/takeout/lane_car/build/camera_pkg/install.log'
+[0.569s] Invoked command in '/home/isthis/takeout/lane_car/src/camera_pkg' returned '0': PYTHONPATH=/home/isthis/takeout/lane_car/build/camera_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/isthis/takeout/lane_car/install/camera_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/camera_pkg build --build-base /home/isthis/takeout/lane_car/build/camera_pkg/build install --record /home/isthis/takeout/lane_car/build/camera_pkg/install.log --single-version-externally-managed install_data
