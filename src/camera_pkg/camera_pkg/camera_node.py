@@ -15,7 +15,7 @@ class CameraNode(Node):
         self.bridge = CvBridge()
 
         # cv2.VideoCapture로 웹캠 열기
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(4)
         if not self.cap.isOpened():
             self.get_logger().error("웹캠을 열 수 없습니다!")
             rclpy.shutdown()
